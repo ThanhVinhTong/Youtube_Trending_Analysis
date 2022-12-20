@@ -40,29 +40,36 @@ CATEGORIES = {1: 'Film & Animation',\
 
 def plot_1(dataframe):
 	'''
-	Author: Trang
+	Author: Minh
 	'''
 	def func(pct, allvalues):
 		absolute = int(pct / 100.*np.sum(allvalues))
 		return "{:.1f}%\n({:d}pts)".format(pct, absolute)
+
 	# create 2 arrays to hold the categories' names and its popularity point
 	categories = []
 	for i in CATEGORIES.keys():
 		categories.append(CATEGORIES[i])
 	popularity = [0]*len(categories)
+
 	# populate arrays with popularity point
 	for i in dataframe.index:
 		t = categories.index(CATEGORIES[int(dataframe.loc[i,'category_id'])])
 		popularity[t] += int(dataframe.loc[i,'notes'])
+
 	# create dataset and sort by total popularity
 	dataset = pd.DataFrame(data={'categories': categories, 'popularity': popularity})
 	dataset = dataset.groupby('categories').sum().sort_values(by=['popularity'], ascending=False)
+	
 	# take top 5 categories
 	dataset_top = dataset[:5].copy()
+	
 	# one entry for all other categories
 	dataset_others = pd.DataFrame(data={'popularity': [dataset['popularity'][5:].sum()]}, index=['Others'])
+	
 	# combining top 5 with others
 	dataset = pd.concat([dataset_top, dataset_others])
+	
 	# plot pie chart
 	colors = ['#00c2f9','#00e4b9','#feeaae','#fcb1d9','#fdfdfa','#d9ccb2']
 	plt.pie(dataset['popularity'],labels=dataset.index, shadow=False,colors=colors,autopct=lambda pct: func(pct, dataset['popularity']))
@@ -70,7 +77,7 @@ def plot_1(dataframe):
 
 def plot_2(dataframe):
 	'''
-	Author: Giang
+	Author: Huy
 	Consider the top 5 most frequently trending categories.
 	How many views in average does it take for a video of a certain category to trend?	
 	'''
@@ -110,7 +117,7 @@ def plot_2(dataframe):
 """
 def plot_4(dataframe):
 	'''
-	Author: Giang
+	Author: ...
 	Does a holiday event affect the YouTube trending tab?
 	'''
 	keywords = ['christmas', 'xmas', 'holiday', 'santa', 'snow', 'noel', 'present', 'gift', 'new year',
@@ -169,7 +176,7 @@ def plot_4(dataframe):
 
 def plot_5(dataframe):
 	'''
-	Author: Trang
+	Author: Tuan
 	'''
 	# create empty string to hold all video titles later
 	text = ''
