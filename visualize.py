@@ -70,66 +70,44 @@ def plot_1(dataframe):
 
 def plot_2(dataframe):
 	'''
-	Author: Trang
+	Author: Giang
+	Consider the top 5 most frequently trending categories.
+	How many views in average does it take for a video of a certain category to trend?	
 	'''
-	# create empty string to hold all video titles later
-	text = ''
-	printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n'
-	
-	# filter all the titles to leave only printable characters
-	dataframe['title'] = dataframe['title'].apply( lambda x: ''.join(filter(lambda xi: xi in printable, x)))
-	# get each video title, break the words into tokens and add to 'text'
-	for x in dataframe.index:
-		title = str(dataframe.loc[x,'title'])
-			
-		tokens = title.split()
-		for i in range(len(tokens)):
-				tokens[i] = tokens[i].lower()
-		text += ' '.join(tokens)+' '
-		
-	# generate word cloud
-	cloud = wordcloud.WordCloud(width = 1400, height = 800, background_color ='white', min_font_size = 10).generate(text)
-	# plot the word cloud
-	plt.figure(figsize = (8, 14), facecolor = None)
-	plt.imshow(cloud)
-	plt.axis("off")
-	plt.tight_layout(pad = 5) 
-	plt.show()
-
-def plot_3(dataframe):
-	'''
-	Author: Minh
-	'''
-	#initialize array
-	dislike_ratio_by_category = {}
-	count = {}
-	#populate array
-	for _ , row in dataframe.iterrows():
-		if row['dislikes'] == 0:
-			break
+	# fill frequency table of categories
+	frequency = {}
+	for _, row in dataframe.iterrows():
 		try:
-			dislike_ratio_by_category[CATEGORIES[row['category_id']]] += (row['dislikes']/(row['likes']+row['dislikes']))
-			count[CATEGORIES[row['category_id']]] += 1
+			frequency[CATEGORIES[row['category_id']]]['videos'] += 1
+			frequency[CATEGORIES[row['category_id']]]['views'] += row['view_count']
 		except:
-			dislike_ratio_by_category[CATEGORIES[row['category_id']]] = (row['dislikes']/(row['likes']+row['dislikes']))
-			count[CATEGORIES[row['category_id']]] = 1
-	#calculate the average dislike ratio for each category
-	for x in dislike_ratio_by_category:
-		dislike_ratio_by_category[x] = dislike_ratio_by_category[x]/count[x]
+			frequency[CATEGORIES[row['category_id']]] = {'videos': 1, 'views': row['view_count']}
+	sorted_frequency = dict(sorted(frequency.items(), key=lambda k_v: k_v[1]['videos'], reverse=True))
 
-	#creata dataset and sort by average dislike ratio
+	top_categories = dict(itertools.islice(sorted_frequency.items(), 8))
+
+	# calculate average view counts
+	average = []
+	for category in top_categories.values():
+		average.append(category['views'] // category['videos'])
+
 	dataset = pd.DataFrame(data={
-		'categories': [*dislike_ratio_by_category.keys()],
-		'dislike_ratio': [*dislike_ratio_by_category.values()]
+		'categories': [*top_categories.keys()],
+		'average_view_count': average,
 	})
-	
-	#plot
-	plt.bar(dataset['categories'],dataset['dislike_ratio'], width = 0.8, color = '#FF69B4' )
-	plt.xticks(fontsize = 6)
-	plt.title('Which categories are the most controversial?')
-	plt.ylabel("Dislike Ratio")
+
+	# plot data
+	_, ax = plt.subplots()
+	ax.bar(dataset['categories'], dataset['average_view_count'])
+	ax.set_xlabel('Most frequently trending categories (left to right)')
+	ax.set_ylabel('Average number of videos per category')
+	ax.set_title('How many views in average does it take for a video of a certain category to trend?')
+	for i, v in enumerate(dataset['average_view_count']):
+		ax.text(i - 0.15, v + 15000, " " + str(v))
+	## show plot
 	plt.show()
 
+"""
 def plot_4(dataframe):
 	'''
 	Author: Giang
@@ -187,87 +165,32 @@ def plot_4(dataframe):
 	ax.legend()
 	## show plot
 	plt.show()
+"""
 
 def plot_5(dataframe):
 	'''
-	Author: Minh
+	Author: Trang
 	'''
-	# fill frequency / public response table of categories
-	frequency_public_response = {}
-	for _ , row in dataframe.iterrows():
-		try:
-			frequency_public_response[CATEGORIES[row['category_id']]]['videos'] += 1
-			frequency_public_response[CATEGORIES[row['category_id']]]['response'] += row['view_count'] + row['likes']
-			+ row['dislikes'] + row['comment_count']
-		except:
-			frequency_public_response[CATEGORIES[row['category_id']]] = {'videos': 1, 'response': row['view_count'] + row['likes']
-			+ row['dislikes'] + row['comment_count']}
+	# create empty string to hold all video titles later
+	text = ''
+	printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n'
 	
-	sorted_frequency = dict(sorted(frequency_public_response.items(), 
-	key=lambda k_v: k_v[1]['videos'], reverse=True))
-
-	top_categories = dict(itertools.islice(sorted_frequency.items(), 10))
-	
-	#create dataset
-	videos_array = []
-	reponse_array = []
-	for category in top_categories.values():
-		videos_array.append(category['videos'])
-		reponse_array.append(category['response'])
-
-	dataset = pd.DataFrame(data={
-		'categories': [*top_categories.keys()],
-		'public_response': reponse_array,
-		'frequency': videos_array
-	})
-
-	plt.subplot(2,1,1)
-	plt.bar(dataset['categories'],dataset['public_response'], color='orange')
-	plt.ylabel("Total Public Response")
-	plt.xticks(fontsize = 7)
-	plt.title("Do views, likes, dislikes, and comments amount really affect a video's trending ability?")
-
-	plt.twinx()
-	plt.plot(dataset['categories'],dataset['frequency'], 'o-', color='purple')
-	plt.ylabel("Trending Frequency")
-
-	plt.show()
-
-def plot_6(dataframe):
-	'''
-	Author: Giang
-	Consider the top 5 most frequently trending categories.
-	How many views in average does it take for a video of a certain category to trend?	
-	'''
-	# fill frequency table of categories
-	frequency = {}
-	for _, row in dataframe.iterrows():
-		try:
-			frequency[CATEGORIES[row['category_id']]]['videos'] += 1
-			frequency[CATEGORIES[row['category_id']]]['views'] += row['view_count']
-		except:
-			frequency[CATEGORIES[row['category_id']]] = {'videos': 1, 'views': row['view_count']}
-	sorted_frequency = dict(sorted(frequency.items(), key=lambda k_v: k_v[1]['videos'], reverse=True))
-
-	top_categories = dict(itertools.islice(sorted_frequency.items(), 8))
-
-	# calculate average view counts
-	average = []
-	for category in top_categories.values():
-		average.append(category['views'] // category['videos'])
-
-	dataset = pd.DataFrame(data={
-		'categories': [*top_categories.keys()],
-		'average_view_count': average,
-	})
-
-	# plot data
-	_, ax = plt.subplots()
-	ax.bar(dataset['categories'], dataset['average_view_count'])
-	ax.set_xlabel('Most frequently trending categories (left to right)')
-	ax.set_ylabel('Average number of videos per category')
-	ax.set_title('How many views in average does it take for a video of a certain category to trend?')
-	for i, v in enumerate(dataset['average_view_count']):
-		ax.text(i - 0.15, v + 15000, " " + str(v))
-	## show plot
+	# filter all the titles to leave only printable characters
+	dataframe['title'] = dataframe['title'].apply( lambda x: ''.join(filter(lambda xi: xi in printable, x)))
+	# get each video title, break the words into tokens and add to 'text'
+	for x in dataframe.index:
+		title = str(dataframe.loc[x,'title'])
+			
+		tokens = title.split()
+		for i in range(len(tokens)):
+				tokens[i] = tokens[i].lower()
+		text += ' '.join(tokens)+' '
+		
+	# generate word cloud
+	cloud = wordcloud.WordCloud(width = 1400, height = 800, background_color ='white', min_font_size = 10).generate(text)
+	# plot the word cloud
+	plt.figure(figsize = (8, 14), facecolor = None)
+	plt.imshow(cloud)
+	plt.axis("off")
+	plt.tight_layout(pad = 5) 
 	plt.show()
