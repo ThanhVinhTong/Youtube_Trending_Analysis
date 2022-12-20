@@ -42,6 +42,8 @@ def list_file(path):
 def clean(dataset):
 	clean_df = dataset.copy(deep=True)
 
+	clean_df.info()
+
     # Replace NaN in description with space
 	clean_df["description"].fillna(" ", inplace=True)
 
@@ -103,11 +105,9 @@ def main():
 	list_file(path = path)
 
 	combined_df = merge(datasets_filenames)
-	print(combined_df.shape)
-	print(combined_df.columns)
 
 	clean_df = clean(combined_df)
 
-	print(clean_df.shape)
-	print(clean_df.columns)
+	print("Cleaned Data's shape: {}".format(clean_df.shape))
+	print("Cleaned Data's Attributes: {}".format(clean_df.columns))
 	clean_df.to_csv('data/clean.csv')
