@@ -96,6 +96,9 @@ def clean(dataset):
 
 	return clean_df
 
+def read():
+	return pd.read_csv("data/clean.csv")
+
 def main():
 	list_file(path = path)
 

@@ -54,8 +54,8 @@ def plot_1(dataframe):
 
 	# populate arrays with popularity point
 	for i in dataframe.index:
-		t = categories.index(CATEGORIES[int(dataframe.loc[i,'category_id'])])
-		popularity[t] += int(dataframe.loc[i,'notes'])
+		t = categories.index(CATEGORIES[dataframe.loc[i,'category_id']])
+		popularity[t] += dataframe.loc[i,'notes']
 
 	# create dataset and sort by total popularity
 	dataset = pd.DataFrame(data={'categories': categories, 'popularity': popularity})
@@ -72,7 +72,9 @@ def plot_1(dataframe):
 	
 	# plot pie chart
 	colors = ['#00c2f9','#00e4b9','#feeaae','#fcb1d9','#fdfdfa','#d9ccb2']
-	plt.pie(dataset['popularity'],labels=dataset.index, shadow=False,colors=colors,autopct=lambda pct: func(pct, dataset['popularity']))
+	plt.pie(dataset['popularity'], labels=dataset.index, 
+			shadow=False, colors=colors,
+			autopct=lambda pct: func(pct, dataset['popularity']))
 	plt.show()
 
 def plot_2(dataframe):
