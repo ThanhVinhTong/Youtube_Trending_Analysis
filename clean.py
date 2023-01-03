@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import numpy as np
 import pandas as pd
 import os
@@ -23,6 +23,7 @@ buttons disabled).
 REGIONS = ['US', 'GB', 'JP', 'KR', 'IN']
 datasets_filenames = []
 path = "data"
+dates = []
 
 def merge(filenames):
 	list_of_df = []
@@ -37,7 +38,29 @@ def merge(filenames):
 def list_file(path):
     filenames = os.listdir( path = path )
     for i in range(1, len(filenames)):
+        dates.append(filenames[i])
         datasets_filenames.append("data/" + filenames[i])
+
+def convert_to_datetime(date, flag, i):
+	day = date.split("T")[0]
+	if(date[-1]!='Z'):
+		print("date:", date)
+		print("flag:", flag)
+		print("i=", i)
+	hour = (date.split("T")[1].split("Z"))[0]
+	if flag == 1:
+		day = datetime.strptime(day, "%Y-%m-%d").strftime("%d-%m-%Y")
+
+	date = day + " " + hour
+	date = datetime.strptime(date, "%d-%m-%Y %H:%M:%S")
+	
+	return date
+
+def get_video_age(published_date, trending_date, i):
+	published_date = convert_to_datetime(published_date, 1, i)
+	trending_date = convert_to_datetime(trending_date, 0, i)
+	age = (trending_date-published_date).total_seconds()
+	return age
 
 def clean(dataset):
 	clean_df = dataset.copy(deep=True)
@@ -50,9 +73,22 @@ def clean(dataset):
     # Delete all rows with a missing values if any
 	clean_df.dropna(inplace=True)
 
-	# Change format of trending_date to discard crawl time
-	# clean_df['trending_date'].mask(clean_df['trending_date'] == '2022-12-10T00:00:00Z','10/12/2022',inplace=True)
-	
+	print(len(clean_df))
+
+	# get video age
+	age = []
+	for i in range(0, len(clean_df)):
+		temp = get_video_age(clean_df['publishedAt'][i], clean_df['trending_date'][i], i)
+		age.append(temp)	
+	clean_df['age'] = age
+
+	# Change format of trending_date and published_date to discard crawl time
+	for date in dates:
+		date = date.split(".")[0]
+		for i in range(0, len(clean_df)):
+			clean_df['trending_date'].replace(clean_df['trending_date'][i], date, inplace=True)
+			clean_df['publishedAt'].replace(clean_df['publishedAt'][i], clean_df['publishedAt'][i].split("T")[0], inplace=True)
+			
 	# Correct negative values, if any
 	for x in clean_df.index:
 		clean_df.loc[x,'view_count'] = int(clean_df.loc[x,'view_count'])
@@ -64,7 +100,6 @@ def clean(dataset):
 			clean_df.loc[x,'likes'] = 0
 		if clean_df.loc[x,'comment_count'] < 0 or clean_df.loc[x,'comments_disabled'] == True:
 			clean_df.loc[x,'comment_count'] = 0
-
 
     # Rename some columns for uniformity
 	clean_df.rename(columns={'channelTitle': 'channel_title',
@@ -92,7 +127,7 @@ def clean(dataset):
 	
 	clean_df = clean_df.reindex(columns=['video_id', 'title', 'published_at', 'channel_id', 'channel_title',
 					 'category_id', 'trending_date', 'view_count', 'likes', 
-										 'comment_count', 'comments_disabled', 'description', 'notes'])
+										 'comment_count', 'comments_disabled', 'description', 'notes', 'age'])
 
 	clean_df.reset_index(drop=True, inplace=True)
 

@@ -116,11 +116,11 @@ def plot_2(dataframe):
 	## show plot
 	plt.show()
 
-"""
+
 def plot_4(dataframe):
 	'''
 	Author: ...
-	Does a holiday event affect the YouTube trending tab?
+	Does a special event affect the YouTube trending tab?
 	'''
 	keywords = ['christmas', 'xmas', 'holiday', 'santa', 'snow', 'noel', 'present', 'gift', 'new year',
 		'クリスマス', 'ホリデー', 'ノエル','サンタ', '雪', '贈り物', '新年',
@@ -174,7 +174,7 @@ def plot_4(dataframe):
 	ax.legend()
 	## show plot
 	plt.show()
-"""
+
 
 def plot_5(dataframe):
 	'''
