@@ -111,19 +111,19 @@ def clean(dataset):
 	clean_df['notes'] = "1"
 
 	# Add number of regions the video is trending to 'notes'
-	dups = clean_df[clean_df.duplicated(subset=['video_id','trending_date'],keep=False)]	
+	dups = clean_df[clean_df.duplicated(subset=['video_id','published_at'],keep=False)]	
 	for x in dups.index:
 		id = dups.loc[x,'video_id']
-		date = dups.loc[x,'trending_date']
-		temp = clean_df[(clean_df['video_id'] == id) & (clean_df['trending_date'] == date)]
+		date = dups.loc[x,'published_at']
+		temp = clean_df[(clean_df['video_id'] == id) & (clean_df['published_at'] == date)]
 		temp = len(temp.index)
 		for i in clean_df.index:
-			if clean_df['video_id'][i] == id and clean_df['trending_date'][i] == date:
+			if clean_df['video_id'][i] == id and clean_df['published_at'][i] == date:
 				clean_df.loc[i,'notes'] = temp
 				break
 
 	# Drop duplicates
-	clean_df.drop_duplicates(subset=['video_id','trending_date'],keep='first',inplace=True)
+	clean_df.drop_duplicates(subset=['video_id','published_at'],keep='first',inplace=True)
 	
 	clean_df = clean_df.reindex(columns=['video_id', 'title', 'published_at', 'channel_id', 'channel_title',
 					 'category_id', 'trending_date', 'view_count', 'likes', 

@@ -19,8 +19,7 @@ if __name__ == '__main__':
 		# TODO
 		pass
 	elif sys.argv[1] == '4':
-		# TODO
-		pass
+		visualize.plot_4(data)
 	elif sys.argv[1] == '5':
 		visualize.plot_5(data)
 	else:
