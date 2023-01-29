@@ -8,19 +8,3 @@ if __name__ == '__main__':
 	# clean
 	if '--clean' in sys.argv:
 		clean.main()
-
-	# visualize
-	data = clean.read()
-	if sys.argv[1] == '1':
-		visualize.plot_1(data)
-	elif sys.argv[1] == '2':
-		visualize.plot_2(data)
-	elif sys.argv[1] == '3':
-		# TODO
-		pass
-	elif sys.argv[1] == '4':
-		visualize.plot_4(data)
-	elif sys.argv[1] == '5':
-		visualize.plot_5(data)
-	else:
-		print('No plot code selected')
