@@ -65,7 +65,7 @@ def get_video_age(published_date, trending_date, i):
     published_date = convert_to_datetime(published_date, 1, i)
     trending_date = convert_to_datetime(trending_date, 0, i)
     age = (trending_date-published_date).total_seconds()/3600
-    return age
+    return int(age)
 
 
 def clean(dataset):
@@ -130,7 +130,7 @@ def clean(dataset):
         subset=['video_id', 'published_at'], keep='first', inplace=True)
 
     # Add "temperature" column
-    clean_df['temperature'] = clean_df['view_count']/clean_df['age']
+    clean_df['temperature'] = (clean_df['view_count']/clean_df['age']).round(0)
 
     # Reindex columns 
     clean_df = clean_df.reindex(columns=['video_id', 'title', 'published_at', 'channel_id', 'channel_title',
