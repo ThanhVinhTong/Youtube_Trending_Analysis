@@ -89,13 +89,6 @@ def clean(dataset):
         age.append(temp)
     clean_df['age'] = age
 
-    # # Change format of trending_date and published_date to discard crawl time
-    # for date in dates:
-    # 	date = date.split(".")[0]
-    # 	for i in range(0, len(clean_df)):
-    # 		clean_df['trending_date'].replace(clean_df['trending_date'][i], date, inplace=True)
-    # 		clean_df['publishedAt'].replace(clean_df['publishedAt'][i], clean_df['publishedAt'][i].split("T")[0], inplace=True)
-
     # Correct negative values, if any
     for x in clean_df.index:
         clean_df.loc[x, 'view_count'] = int(clean_df.loc[x, 'view_count'])

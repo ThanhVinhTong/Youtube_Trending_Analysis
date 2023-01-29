@@ -125,8 +125,7 @@ def plot_2(dataframe):
     # show plot
     plt.show()
 
-
-def plot_4(dataframe):
+def plot_3(dataframe):
     '''
     Author: ...
     Does a special event affect the YouTube trending tab?
@@ -187,7 +186,7 @@ def plot_4(dataframe):
     plt.show()
 
 
-def plot_5(dataframe):
+def plot_4(dataframe):
     '''
     Author: Tuan
     '''
